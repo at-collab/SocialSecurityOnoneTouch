@@ -20,6 +20,16 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import com.akexorcist.googledirection.DirectionCallback;
+import com.akexorcist.googledirection.GoogleDirection;
+import com.akexorcist.googledirection.constant.TransitMode;
+import com.akexorcist.googledirection.constant.TransportMode;
+import com.akexorcist.googledirection.constant.Unit;
+import com.akexorcist.googledirection.model.Direction;
+import com.akexorcist.googledirection.model.Leg;
+import com.akexorcist.googledirection.model.Route;
+import com.akexorcist.googledirection.model.Step;
+import com.akexorcist.googledirection.util.DirectionConverter;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -41,6 +51,7 @@ import com.google.maps.model.EncodedPolyline;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import safeyourself.socialsecurityononetouch.R;
 
@@ -55,6 +66,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     Button search;
     EditText add;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,6 +77,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         add = (EditText) findViewById(R.id.searchedit);
+
         search = (Button) findViewById(R.id.butonsearch);
         search.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -92,77 +105,54 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
 
 
-
                     try {
-                        address = coder.getFromLocationName(add.getText().toString(),5);
-                        if (address==null) {
-
+                        address = coder.getFromLocationName(add.getText().toString(), 1);
+                        if (address == null) {
+                            Toast.makeText(getApplicationContext(),"empty",Toast.LENGTH_SHORT).show();
                         }
-                        Address location=address.get(0);
-                        location.getLatitude();
-                        location.getLongitude();
+                        Address location = address.get(0);
+                        double lat = location.getLatitude();
+                        double lng = location.getLongitude();
+                        Toast.makeText(getApplicationContext(),"lat "+lat,Toast.LENGTH_SHORT).show();
+                        String serverKey = "AIzaSyBCX1etjj3K9FNF_toPLyjRwV-g5rXDceE";
+                        LatLng origin = new LatLng(latitude,longitude);
+                        LatLng destination = new LatLng(lat, lng);
 
+                        GoogleDirection.withServerKey(serverKey)
+                                .from(origin).
+                                to(destination)
+                                .transportMode(TransportMode.DRIVING)
+                                .transitMode(TransitMode.BUS)
+                                .unit(Unit.METRIC)
+                                .execute(new DirectionCallback() {
+                                    @Override
+                                    public void onDirectionSuccess(Direction direction, String rawBody) {
+                                        Route route = direction.getRouteList().get(0);
+                                        Leg leg = route.getLegList().get(0);
+                                        List<Step> stepList = direction.getRouteList().get(0).getLegList().get(0).getStepList();
+                                        List<Step> step = leg.getStepList();
 
-                        //Execute Directions API request
-                    GeoApiContext context = new GeoApiContext.Builder()
-                            .apiKey("AIzaSyBCX1etjj3K9FNF_toPLyjRwV-g5rXDceE")
-                            .build();
-                    DirectionsApiRequest req = DirectionsApi.getDirections(context, Double.toString(latitude)+","+Double.toString(longitude), Double.toString(location.getLatitude())+","+Double.toString(location.getLongitude()+2));
-                    try {
-                        DirectionsResult res = req.await();
-
-                        //Loop through legs and steps to get encoded polylines of each step
-                        if (res.routes != null && res.routes.length > 0) {
-                            DirectionsRoute route = res.routes[0];
-
-                            if (route.legs !=null) {
-                                for(int i=0; i<route.legs.length; i++) {
-                                    DirectionsLeg leg = route.legs[i];
-                                    if (leg.steps != null) {
-                                        for (int j=0; j<leg.steps.length;j++){
-                                            DirectionsStep step = leg.steps[j];
-                                            if (step.steps != null && step.steps.length >0) {
-                                                for (int k=0; k<step.steps.length;k++){
-                                                    DirectionsStep step1 = step.steps[k];
-                                                    EncodedPolyline points1 = step1.polyline;
-                                                    if (points1 != null) {
-                                                        //Decode polyline and add points to list of route coordinates
-                                                        List<com.google.maps.model.LatLng> coords1 = points1.decodePath();
-                                                        for (com.google.maps.model.LatLng coord1 : coords1) {
-                                                            path.add(new LatLng(coord1.lat, coord1.lng));
-                                                        }
-                                                    }
-                                                }
-                                            } else {
-                                                EncodedPolyline points = step.polyline;
-                                                if (points != null) {
-                                                    //Decode polyline and add points to list of route coordinates
-                                                    List<com.google.maps.model.LatLng> coords = points.decodePath();
-                                                    for (com.google.maps.model.LatLng coord : coords) {
-                                                        path.add(new LatLng(coord.lat, coord.lng));
-                                                    }
-                                                }
-                                            }
-                                        }
+                                        // Do something here
+                                        Toast.makeText(getApplicationContext(),"Mil Gae",Toast.LENGTH_SHORT).show();
+                                        ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
+                                        PolylineOptions polylineOptions = DirectionConverter.createPolyline(MapsActivity.this, directionPositionList, 5, Color.RED);
+                                        mMap.addPolyline(polylineOptions);
                                     }
-                                }
-                            }
-                        }
-                    } catch(Exception ex) {
-                        Log.e("sh", ex.getLocalizedMessage());
+
+                                    @Override
+                                    public void onDirectionFailure(Throwable t) {
+                                        // Do something here
+                                    }
+                                });
+
+
+                      //  return lat + "," + lng;
+                    } catch (Exception e) {
+                      //  return null;
                     }
 
-                    //Draw the polyline
-                    if (path.size() > 0) {
-                        PolylineOptions opts = new PolylineOptions().addAll(path).color(Color.BLUE).width(5);
-                        mMap.addPolyline(opts);
-                    }
 
-
-
-                } catch (IOException e) {
-                        e.printStackTrace();
-                    }}
+                   }
                 }});
     }
 
@@ -226,6 +216,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         googleMap.setOnPolygonClickListener(this);
         mMap.setTrafficEnabled(true);
         mMap.setMyLocationEnabled(true);
+        mMap.setMyLocationEnabled(true);
+        googleMap.getUiSettings().setMyLocationButtonEnabled(true);
 
 
     }
