@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "878767107437",
+    "firebase_url": "https://ssoot-e7dd0.firebaseio.com",
+    "project_id": "ssoot-e7dd0",
+    "storage_bucket": "ssoot-e7dd0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:878767107437:android:b39353639f6fb266",
+        "android_client_info": {
+          "package_name": "safeyourself.socialsecurityononetouch"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "878767107437-vmtm0v79vn20n66us827qkchp1jh2fbs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "safeyourself.socialsecurityononetouch",
+            "certificate_hash": "d5407f25d674f2c235ce363b72b2f2804aa94bae"
+          }
+        },
+        {
+          "client_id": "878767107437-tpqqaj7pdorrabihnl5b1djtjvql53j7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBCX1etjj3K9FNF_toPLyjRwV-g5rXDceE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "878767107437-tpqqaj7pdorrabihnl5b1djtjvql53j7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
