@@ -123,6 +123,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 to(destination)
                                 .transportMode(TransportMode.DRIVING)
                                 .transitMode(TransitMode.BUS)
+                                .alternativeRoute(true)
                                 .unit(Unit.METRIC)
                                 .execute(new DirectionCallback() {
                                     @Override
