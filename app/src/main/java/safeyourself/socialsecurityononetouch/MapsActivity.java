@@ -63,22 +63,43 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private static final int LOCATION_REQUEST = 500;
     double longitude;
     double latitude;
-    Button search;
+    Button search,traffic;
     EditText add;
-
+    int lightcheck=0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        search = (Button) findViewById(R.id.butonsearch);
         setContentView(R.layout.activity_maps);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+        search = (Button) findViewById(R.id.butonsearch);
+        traffic = (Button) findViewById(R.id.butontr);
+        traffic.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                //mMap=new GoogleMap.
+
+                if (lightcheck==0)
+                {
+                    lightcheck=1;
+                    onMapReady(mMap);
+                }
+                else {
+                    lightcheck=0;
+                    onMapReady(mMap);
+                }
+                }
+
+        });
+
         add = (EditText) findViewById(R.id.searchedit);
 
         search = (Button) findViewById(R.id.butonsearch);
+
         search.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -123,11 +144,15 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                 to(destination)
                                 .transportMode(TransportMode.DRIVING)
                                 .transitMode(TransitMode.BUS)
+
                                 .alternativeRoute(true)
+
+
                                 .unit(Unit.METRIC)
                                 .execute(new DirectionCallback() {
                                     @Override
                                     public void onDirectionSuccess(Direction direction, String rawBody) {
+
                                         Route route = direction.getRouteList().get(0);
                                         Leg leg = route.getLegList().get(0);
                                         List<Step> stepList = direction.getRouteList().get(0).getLegList().get(0).getStepList();
@@ -136,8 +161,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         // Do something here
                                         Toast.makeText(getApplicationContext(),"Mil Gae",Toast.LENGTH_SHORT).show();
                                         ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
-                                        PolylineOptions polylineOptions = DirectionConverter.createPolyline(MapsActivity.this, directionPositionList, 5, Color.RED);
+                                        PolylineOptions polylineOptions = DirectionConverter.createPolyline(MapsActivity.this, directionPositionList, 5, Color.parseColor("#1A1AFF"));
                                         mMap.addPolyline(polylineOptions);
+                                        mMap.addMarker(new MarkerOptions().position(origin)
+                                                .title("Starting location"));
+                                        mMap.addMarker(new MarkerOptions().position(destination)
+                                                .title("end location "));
                                     }
 
                                     @Override
@@ -146,7 +175,33 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                     }
                                 });
 
+                        GoogleDirection.withServerKey(serverKey)
+                                .from(origin)
+                                .to(destination)
+                                 .alternativeRoute(true)
+                                .execute(new DirectionCallback() {
+                                    @Override
+                                    public void onDirectionSuccess(Direction direction, String rawBody) {
 
+                                        Route route = direction.getRouteList().get(1);
+                                        Leg leg = route.getLegList().get(0  );
+
+                                        List<Step> step = leg.getStepList();
+                                        Toast.makeText(getApplicationContext(),"Alternate route",Toast.LENGTH_SHORT).show();
+                                        ArrayList<LatLng> directionPositionList = leg.getDirectionPoint();
+                                        PolylineOptions polylineOptions = DirectionConverter.createPolyline(MapsActivity.this, directionPositionList, 5,Color.parseColor("#FF750B"));
+                                        mMap.addPolyline(polylineOptions);
+                                        mMap.addMarker(new MarkerOptions().position(origin)
+                                                .title("Starting location"));
+                                        mMap.addMarker(new MarkerOptions().position(destination)
+                                                .title("end location "));
+                                    }
+
+                                    @Override
+                                    public void onDirectionFailure(Throwable t) {
+
+                                    }
+                                });
                       //  return lat + "," + lng;
                     } catch (Exception e) {
                       //  return null;
@@ -215,7 +270,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         }
         googleMap.setOnPolylineClickListener(this);
         googleMap.setOnPolygonClickListener(this);
-        mMap.setTrafficEnabled(true);
+if(lightcheck==1)
+    mMap.setTrafficEnabled(true);
+else
+    mMap.setTrafficEnabled(false);
         mMap.setMyLocationEnabled(true);
         mMap.setMyLocationEnabled(true);
         googleMap.getUiSettings().setMyLocationButtonEnabled(true);
@@ -257,6 +315,7 @@ currentLongitude=location2.getLongitude();
 
 
     }
+
 
     @Override
     public void onStatusChanged(String s, int i, Bundle bundle) {
