@@ -192,9 +192,9 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         PolylineOptions polylineOptions = DirectionConverter.createPolyline(MapsActivity.this, directionPositionList, 5,Color.parseColor("#FF750B"));
                                         mMap.addPolyline(polylineOptions);
                                         mMap.addMarker(new MarkerOptions().position(origin)
-                                                .title("Starting location"));
+                                                .title("Starting  location"));
                                         mMap.addMarker(new MarkerOptions().position(destination)
-                                                .title("end location "));
+                                                .title("end  location "));
                                     }
 
                                     @Override
