@@ -194,7 +194,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                                         mMap.addMarker(new MarkerOptions().position(origin)
                                                 .title("Starting  location"));
                                         mMap.addMarker(new MarkerOptions().position(destination)
-                                                .title("end  location "));
+                                                .title("End  location "));
                                     }
 
                                     @Override
